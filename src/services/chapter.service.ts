@@ -10,6 +10,6 @@ export const createChapter = async (
 };
 
 export const getAllChapters = async () => {
-  const chapters = await Chapter.find().sort({ createdAt: -1 });
+  const chapters = await Chapter.find().populate('problems').sort({ createdAt: -1 });
   return chapters;
 };
