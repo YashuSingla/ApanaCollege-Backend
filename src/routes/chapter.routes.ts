@@ -7,7 +7,8 @@ import { chapterSchema } from '../validators/chapter.validator';
 
 const router = Router();
 
-router.post('/', verifyToken, requireAdmin,validateBody(chapterSchema), createChapter); // Only admin
-router.get('/', verifyToken, getAllChapters);                // Any logged-in user
+router.use(verifyToken);
+router.post('/', requireAdmin,validateBody(chapterSchema), createChapter); // Only admin
+router.get('/', getAllChapters);                // Any logged-in user
 
 export default router;

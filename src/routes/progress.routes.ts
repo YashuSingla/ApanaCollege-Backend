@@ -7,7 +7,8 @@ import { progressSchema } from '../validators/progress.validator';
 
 const router = Router();
 
-router.post('/', verifyToken, validateBody(progressSchema), markProgress);
-router.get('/', verifyToken, getUserProgress);
+router.use(verifyToken);
+router.post('/', validateBody(progressSchema), markProgress);
+router.get('/', getUserProgress);
 
 export default router;

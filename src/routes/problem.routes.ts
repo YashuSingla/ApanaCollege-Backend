@@ -7,7 +7,8 @@ import { verifyToken, requireAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.post('/', verifyToken, requireAdmin, validateBody(problemSchema), createProblem);
-router.get('/', verifyToken, getAllProblems);
+router.use(verifyToken);
+router.post('/',  requireAdmin, validateBody(problemSchema), createProblem);
+router.get('/', getAllProblems);
 
 export default router;

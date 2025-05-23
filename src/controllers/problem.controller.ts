@@ -1,32 +1,55 @@
 import { RequestHandler } from 'express';
-import { Problem } from '../models/problem.model';
-import { Chapter } from '../models/chapter.model';
+import * as problemService from '../services/problem.service';
 
 export const createProblem: RequestHandler = async (req, res) => {
   try {
-    const { chapterId, title, youtubeLink, leetcodeLink, articleLink, level } = req.body;
-    const chapter = await Chapter.findById(chapterId);
-    if (!chapter) {
-      res.status(404).json({
-        success: false,
-        message: 'Chapter not found'
-      });
-      return;
+    const {
+      chapterId,
+      title,
+      youtubeLink,
+      leetcodeLink,
+      articleLink,
+      level
+    } = req.body;
+
+    if (!req.user?.userId) {
+       res.status(401).json({ success: false, message: 'Unauthorized' });
+       return;
     }
-    const problem = await Problem.create({
+
+    const problem = await problemService.createProblem(
       chapterId,
       title,
       youtubeLink,
       leetcodeLink,
       articleLink,
       level,
-      createdBy: req.user?.userId // works if you've extended req.user in global type
-    });
+      req.user.userId
+    );
 
     res.status(201).json({
       success: true,
-      message: 'Problem created successfully',
+      message: 'Problem created and linked to chapter successfully',
       problem
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Server error';
+    const status = msg === 'Chapter not found' ? 404 : 500;
+
+    res.status(status).json({
+      success: false,
+      message: msg
+    });
+  }
+};
+
+export const getAllProblems: RequestHandler = async (req, res) => {
+  try {
+    const problems = await problemService.getAllProblems();
+
+    res.status(200).json({
+      success: true,
+      problems
     });
   } catch (err) {
     res.status(500).json({
@@ -36,21 +59,3 @@ export const createProblem: RequestHandler = async (req, res) => {
     });
   }
 };
-
-export const getAllProblems: RequestHandler = async (req, res) => {
-    try {
-      const problems = await Problem.find().populate('chapterId', 'title');
-  
-      res.status(200).json({
-        success: true,
-        problems
-      });
-    } catch (err) {
-      res.status(500).json({
-        success: false,
-        message: 'Server error',
-        error: err instanceof Error ? err.message : err
-      });
-    }
-  };
-  
